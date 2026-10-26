@@ -7774,7 +7774,6 @@ function computeWatchlist(ctx) {
 // ========================================================
 function portraitSrc(name) { return `Portraits/${name.toLowerCase()}_portrait.jpg`; }
 
-
 function renderBanner() {
   document.getElementById('bannerMap').textContent = currentMap
     ? `${currentMap.toUpperCase()} · ${(GAMEMODES.find(g=>g.key===MAP_GAMEMODE[currentMap])||{}).label || ''}`.toUpperCase()
