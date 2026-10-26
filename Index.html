@@ -101,6 +101,21 @@ body {
 .db-name{font-weight:800;font-size:12px;color:#e8ecff;letter-spacing:.5px}
 .db-class{font-size:10px;color:#8a93b2;margin-top:2px;text-transform:uppercase}
 .db-card.empty{opacity:.7}
+#profilePanel{margin-bottom:12px;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px;background:rgba(255,255,255,.03)}
+.pm-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.pm-slots label{display:flex;flex-direction:column;gap:3px;font-size:10px;font-weight:800;color:#f7c948;text-transform:uppercase;letter-spacing:.5px}
+#profilePanel select,#profilePanel input{background:#10142a;color:#e8ecff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px;font-size:12px;min-width:0}
+.pm-btn{background:rgba(255,255,255,.06);color:#e8ecff;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer}
+.pm-btn:hover{background:rgba(255,255,255,.12)}
+.pm-btn.danger{color:#ff9a9a;border-color:rgba(255,77,77,.4)}
+.pm-edit{margin-top:10px}
+.pm-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.pm-row input{flex:1}
+.pm-count{font-size:11px;color:#8a93b2;margin-right:auto}
+.pm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px;max-height:260px;overflow-y:auto}
+.pm-chip{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:8px;border:2px solid rgba(255,77,77,.5);background:rgba(255,77,77,.06);cursor:pointer;opacity:.45;font-size:9px;font-weight:700;text-align:center;color:#e8ecff}
+.pm-chip.on{border-color:#3ddc97;background:rgba(61,220,151,.08);opacity:1}
+.pm-chip img{width:36px;height:36px;border-radius:6px;object-fit:cover}
 /* ---- stage ---- */
 .stage { display:grid; grid-template-columns: 1.15fr .85fr; gap:16px; margin-bottom:18px; }
 @media (max-width: 880px) { .stage { grid-template-columns: 1fr; } }
@@ -196,7 +211,11 @@ body {
 .lane.good .lane-wr{color:#3ddc97}
 .lane.bad .lane-wr{color:#ff4d4d}
 .lane-g{font-size:10px;color:#8a93b2}
-
+.prof-toggle{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:#e8ecff;margin-bottom:8px;cursor:pointer}
+.prof-toggle b{color:#f7c948;margin-left:auto}
+.prof-better{font-size:11px;color:#f7c948;background:rgba(247,201,72,.08);border:1px solid rgba(247,201,72,.3);border-radius:8px;padding:6px 8px;margin-bottom:8px}
+.not-owned{font-size:9px;font-weight:800;color:#ff9a9a;border:1px solid rgba(255,77,77,.4);border-radius:4px;padding:1px 4px;margin-left:6px}
+.gap{color:#ff9a9a;font-size:11px}
 /* search + grid */
 .search-wrap { margin: 4px 0 14px; }
 #brawlerSearch {
@@ -7858,7 +7877,76 @@ function renderBoard() {
   </div>`;
 }
 
+const PROF_KEY = 'drafterProfiles';
+let profiles = [
+  { id:'p1', name:'Daniel',   missing:['MORTIS', 'LEON', 'GROM', 'GRAY', 'PENNY', 'OLLIE', 'SIRIUS', 'WILLOW', 'WILLOW', 'MAISIE', 'GALE', 'BULL', 'COLETTE', 'GRIFF', 'R-T', 'EVE', 'DARRYL', 'BEA', 'JACKY', 'PAM', 'GIGI', 'NANI', 'BONNIE', 'CLANCY', 'BUSTER', 'ROSA', 'ZIGGY', 'ALLI', 'JESSIE', 'TICK', 'MR. P', 'BELLE', 'SQUEAK', 'LOLA', 'FANG', 'JANET', 'SAM', 'HANK', 'DOUG', 'LARRY & LAWRIE', 'MELODIE', 'LILY', 'EL PRIMO', 'SURGE', 'GUS', 'MAX', 'SHADE', 'BARLEY', 'SPROUT', 'LOU', 'RUFFS', 'BUZZ', 'OTIS', 'PEARL', 'CHUCK', 'CHARLIE', 'MICO', 'KIT', 'DRACO', 'BERRY', 'MOE', 'JUJU', 'JAE-YONG', 'KAZE', 'TRUNK', 'MINA', 'PIERCE', 'COSMO', 'VINCE'] },
+  { id:'p2', name:'Jasper',   missing:[''] },
+  { id:'p3', name:'Sirito',   missing:['GIGI', 'LOLA', 'CHUCK', 'BONNIE', 'SAM', 'HANK', 'DOUG', 'TRUNK', 'VINCE'] },
+  { id:'p4', name:'Tykoro',   missing:['GUS', 'GRIFF', 'SHELLY', 'COLT', '8-BIT', 'FRANK', 'BROCK', 'JESSIE', 'DYNAMIKE', 'PAM', 'GENE', 'ROSA', 'CARL', 'SQUEAK', 'LOLA', 'MICO', 'JANET', 'GROM', 'ANGELO', 'WENDY', 'COSMO', 'CHUCK', 'WILLOW', 'DOUG', 'PEARL', 'LILY', 'JAE-YONG', 'ALLI', 'STARR NOVA', 'SHADE', 'OTIS', 'SAM', 'CHESTER', 'MANDY', 'MAISIE', 'HANK', 'KIT', 'LARRY & LAWRIE', 'MELODIE', 'BERRY', 'CLANCY', 'KENJI', 'OLLIE', 'FINX', 'KAZE', 'TRUNK', 'MINA', 'ZIGGY', 'PIERCE', 'GIGI','GLOWY','SIRIUS','BOLT', 'VINCE'] },
 
+];
+let slots = profiles.slice(0,3).map(p => p.id); // default: first three profiles
+let profMgrOpen = false, editingId = profiles[0].id;
+(function(){ try { const d = JSON.parse(localStorage.getItem(PROF_KEY)); if (d && d.slots) slots = d.slots.map(s => profiles.some(p => p.id === s) ? s : null); } catch(e){} })();
+function saveProfiles() { try { localStorage.setItem(PROF_KEY, JSON.stringify({ profiles, slots })); } catch(e){} }
+const escAttr = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+function getProfile(num) { return profiles.find(p => p.id === slots[num-1]) || null; }
+function ownsBrawler(name, num) { const p = getProfile(num); return !p || !p.missing.includes(name); }
+function editingProfile() { return profiles.find(p => p.id === editingId) || profiles[0]; }
+
+function setSlot(i, id) { slots[i] = id || null; saveProfiles(); render(); }
+function toggleProfMgr() { profMgrOpen = !profMgrOpen; render(); }
+function selectEditing(id) { editingId = id; render(); }
+function addProfile() { const id = 'p' + Date.now(); profiles.push({ id, name:'New player', missing:[] }); editingId = id; profMgrOpen = true; saveProfiles(); render(); }
+function deleteProfile() {
+  if (profiles.length <= 1) return;
+  profiles = profiles.filter(p => p.id !== editingId);
+  slots = slots.map(s => profiles.some(p => p.id === s) ? s : null);
+  editingId = profiles[0].id; saveProfiles(); render();
+}
+function renameProfile(v) { const p = editingProfile(); if (p && v.trim()) { p.name = v.trim(); saveProfiles(); render(); } }
+function toggleOwn(name) {
+  const p = editingProfile(), i = p.missing.indexOf(name);
+  if (i >= 0) p.missing.splice(i, 1); else p.missing.push(name);
+  saveProfiles(); render();
+}
+function setAllOwn(own) { editingProfile().missing = own ? [] : [...ALL_BRAWLERS]; saveProfiles(); render(); }
+
+function renderProfiles() {
+  let box = document.getElementById('profilePanel');
+  if (!box) {
+    box = document.createElement('div'); box.id = 'profilePanel';
+    document.getElementById('suggestWrap').insertAdjacentElement('beforebegin', box);
+  }
+  const oldScroll = box.querySelector('.pm-grid')?.scrollTop || 0;
+  const opts = sel => `<option value="">— none —</option>` + profiles.map(p => `<option value="${p.id}" ${p.id===sel?'selected':''}>${escAttr(p.name)}</option>`).join('');
+  let h = `<div class="pm-slots">${[0,1,2].map(i => `<label>Player ${i+1}<select onchange="setSlot(${i}, this.value)">${opts(slots[i])}</select></label>`).join('')}</div>
+    <button class="pm-btn" onclick="toggleProfMgr()">${profMgrOpen ? 'Close profiles' : 'Manage profiles'}</button>`;
+  if (profMgrOpen) {
+    const p = editingProfile();
+    h += `<div class="pm-edit">
+      <div class="pm-row">
+        <select onchange="selectEditing(this.value)">${profiles.map(x => `<option value="${x.id}" ${x.id===p.id?'selected':''}>${escAttr(x.name)}</option>`).join('')}</select>
+        <input value="${escAttr(p.name)}" onchange="renameProfile(this.value)">
+        <button class="pm-btn" onclick="addProfile()">+ New</button>
+        <button class="pm-btn danger" onclick="deleteProfile()">Delete</button>
+      </div>
+      <div class="pm-row"><span class="pm-count">Owns ${ALL_BRAWLERS.length - p.missing.length} / ${ALL_BRAWLERS.length}</span>
+        <button class="pm-btn" onclick="setAllOwn(true)">Own all</button>
+        <button class="pm-btn" onclick="setAllOwn(false)">Own none</button></div>
+      <div class="pm-grid">${ALL_BRAWLERS.map(n => {
+        const owned = !p.missing.includes(n);
+        return `<div class="pm-chip ${owned?'on':''}" onclick="toggleOwn('${n.replace(/'/g,"\\'")}')"><img src="${portraitSrc(n)}" onerror="this.style.display='none'"><span>${n}</span></div>`;
+      }).join('')}</div>
+    </div>`;
+  }
+  box.innerHTML = h;
+  const g = box.querySelector('.pm-grid'); if (g) g.scrollTop = oldScroll;
+}
+
+let profileOnly = true;
+function ourPlayerNum() { return getPickOrder().slice(0, picks.length).filter(s => s==='us').length + 1; }
+function setProfileOnly(v) { profileOnly = v; render(); }
 
 function renderSuggestions(ctx) {
   const wrap = document.getElementById('suggestWrap');
@@ -7901,17 +7989,32 @@ function renderSuggestions(ctx) {
     return;
   }
 
-    let html = `<div class="score-list">`;
-  top.forEach((s,i) => {
+     const num = ourPlayerNum();
+  const best = scored[0];
+  const ownedBest = scored.find(s => ownsBrawler(s.brawler, num));
+  const pool = profileOnly ? scored.filter(s => ownsBrawler(s.brawler, num)) : scored;
+  const shown = pool.slice(0, TOP_N);
+
+  let html = `<label class="prof-toggle"><input type="checkbox" ${profileOnly?'checked':''} onchange="setProfileOnly(this.checked)"> Show profile picks only <b>${getProfile(num)?.name || ''}</b></label>`;
+  if (profileOnly) {
+    const better = ownedBest ? scored.filter(s => !ownsBrawler(s.brawler, num) && s.score > ownedBest.score).slice(0, 3) : [];
+    if (better.length) html += `<div class="prof-better">⚠ Better picks you don't own: ${better.map(s => `${s.brawler} (${s.score.toFixed(1)})`).join(', ')}</div>`;
+  }
+  if (!pool.length) { wrap.innerHTML = html + `<div class="suggest-empty">No owned brawlers with data on this map.</div>`; return; }
+
+  html += `<div class="score-list">`;
+  shown.forEach((s,i) => {
     const width = Math.max(6, Math.min(100, (s.score/maxScore)*100));
     const color = rankColors[i % rankColors.length];
+    const esc = s.brawler.replace(/'/g,"\\'");
     const detail = `${s.rawWr.toFixed(0)}% WR (${s.sets}g → ${s.baseWr.toFixed(0)}% adj)${s.synAvg!==null?` · Syn ${s.synAvg.toFixed(0)}%`:''}${s.muAvg!==null?` · Mu ${s.muAvg.toFixed(0)}%`:''}`;
-    html += `<div class="score-row" style="border-left-color:${color}" onclick="clickBrawler('${s.brawler.replace(/'/g,"\\'")}')" oncontextmenu="rightClickBrawler('${s.brawler.replace(/'/g,"\\'")}', event)">
+    const notOwned = !ownsBrawler(s.brawler, num) ? `<span class="not-owned">NOT OWNED</span>` : '';
+    html += `<div class="score-row" style="border-left-color:${color}" onclick="clickBrawler('${esc}')" oncontextmenu="rightClickBrawler('${esc}', event)">
       <img src="${portraitSrc(s.brawler)}" onerror="this.style.display='none'">
       <div class="score-bar">
         <div class="score-bar-fill" style="width:${width}%"></div>
         <div class="score-bar-content">
-          <div class="score-name-line"><span class="score-name">${s.brawler}</span><span class="score-value">${s.score.toFixed(1)}</span></div>
+          <div class="score-name-line"><span class="score-name">${s.brawler}${notOwned}</span><span class="score-value">${s.score.toFixed(1)}</span></div>
           <div class="score-detail">${detail}</div>
           ${s.reasons.length ? `<div class="score-detail">${s.reasons.join(' · ')}</div>` : ''}
         </div>
@@ -7921,6 +8024,7 @@ function renderSuggestions(ctx) {
   html += `</div>`;
   wrap.innerHTML = html;
 }
+
 
 function renderGrid() {
   const grid = document.getElementById('brawlerGrid');
@@ -8029,6 +8133,7 @@ function render() {
     document.getElementById('predictWrap').innerHTML = '';
     renderSuggestions(null);
   }
+  renderProfiles();
   renderGrid();
 }
 
